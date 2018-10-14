@@ -34,6 +34,7 @@ $ python manage.py startapp echobot
 
 
 為了讓 Line 可以把收到的訊息傳給程式
+
 我們將接收的 Webhook URL 設計成 ```https://{domain name}/echobot/callback/```
 
 #### django_line_bot/urls.py
@@ -111,4 +112,18 @@ def message_text(event: MessageEvent):
 
 到這裡，實作的部分就差不多了
 
-## 
+## LINE Developers
+
+再來就要到 [Line Developers](https://developers.line.me/en/) 的頁面去申請 Bot
+
+申請流程就不記錄了，總之這是我申請的 Bot
+
+![](/images/bot_card.png)
+
+點進去之後在 **Channel settings** 的頁面中會有一些資訊需要記下來，如果沒有的話可以按 Issue 按紐來產生
+- Channel secret
+- Channel access token
+
+再來有兩個地方需要設定，由於我們需要將讓 Line 知道要把訊息轉給誰，因此要把 ```Use webhooks``` 設定成 ```Enabled```，```Webhook URL``` 則是設定成前面設計的 Webhook URL，不過目前尚未將程式部屬到網路上所以稍後再設定
+- Use webhooks
+- Webhook URL
