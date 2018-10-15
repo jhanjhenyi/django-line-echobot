@@ -5,10 +5,10 @@ Line Echo Bot 的實作紀錄
 ![](images/echo_bot.png)
 
 ## 使用到的東西
-- Python 3.7
-- ngrok
-- line-bot-sdk-python
-- Heroku
+- [Python 3.7](https://www.python.org/)
+- [ngrok](https://ngrok.com/)
+- [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
+- [Heroku](https://www.heroku.com/)
 
 ## 開發
 
@@ -138,7 +138,7 @@ def message_text(event: MessageEvent):
 - ngrok
 - Heroku
 
-## ngrok
+### ngrok
 
 ngrok 可以將 localhost URLs 對應到 Public URLs
 
@@ -171,7 +171,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 
 這樣應該就能測試了
 
-## Heroku
+### Heroku
 
 基本上 ngrok 是拿來當本機測試用，實際上還是要部署到網路上，這次使用 Heroku 來部署
 
