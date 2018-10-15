@@ -9,6 +9,7 @@ Line Echo Bot 的實作紀錄
 - [ngrok](https://ngrok.com/)
 - [line-bot-sdk-python](https://github.com/line/line-bot-sdk-python)
 - [Heroku](https://www.heroku.com/)
+- [Django](https://www.djangoproject.com/)
 
 ## 開發
 
