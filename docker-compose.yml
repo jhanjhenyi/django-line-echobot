@@ -1,0 +1,59 @@
+version: "3.7"
+services:
+
+  db:
+    container_name: db
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      im: ddd
+    image: postgres:12.1-alpine
+    networks:
+      - django-network
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
+    restart: always
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - jhanjhenyi/django_line_bot:latest
+    container_name: app
+    environment:
+      DEBUG: "true"
+      SECRET_KEY: "$im(i9-zlmm(z$mt%sczj2vld$s_++sx6^-qr0*2^8#q5rt3@7"
+      POSTGRES_HOST: db
+      POSTGRES_DB: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+    image: jhanjhenyi/django_line_bot:latest
+    networks:
+      - django-network
+    ports:
+      - target: 8000
+        published: 80
+        protocol: tcp
+        mode: host
+    restart: always
+    volumes:
+      - type: bind
+        source: .
+        target: /usr/src/app
+
+networks:
+  django-network:
+    driver: bridge
+
+volumes:
+  db-data:

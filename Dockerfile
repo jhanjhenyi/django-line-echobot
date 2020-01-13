@@ -13,7 +13,7 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY ./django_line_bot .
+COPY . .
 
-ENTRYPOINT ["python3", "manage.py"]
+ENTRYPOINT ["python3", "django_line_bot/manage.py"]
 CMD ["runserver", "0.0.0.0:8000"]
