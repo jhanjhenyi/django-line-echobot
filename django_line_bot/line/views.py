@@ -34,6 +34,8 @@ def webhook(request: HttpRequest):
 
 @handler.add(event=MessageEvent, message=TextMessage)
 def handl_message(event: MessageEvent):
-    line_bot_api.reply_message(
-        reply_token=event.reply_token, messages=TextSendMessage(text=event.message.text)
-    )
+    if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
+        line_bot_api.reply_message(
+            reply_token=event.reply_token,
+            messages=TextSendMessage(text=event.message.text),
+        )
