@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
       cache_from:
         - jhanjhenyi/django_line_bot:latest
-    container_name: app
+    container_name: web
     environment:
       DEBUG: "true"
       POSTGRES_HOST: db
@@ -35,6 +35,8 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: adminpassword
+      CHANNEL_ACCESS_TOKEN: fake_channel_access_token
+      CHANNEL_SECRET: fake_channel_secret
     image: jhanjhenyi/django_line_bot:latest
     networks:
       - django-network
