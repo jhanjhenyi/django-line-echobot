@@ -2,7 +2,7 @@
 
 Line Echo Bot 的實作紀錄
 
-![](images/echo_bot.png)
+![](images/line_echo_bot.jpg)
 
 ## 使用到的東西
 - [Python 3.7](https://www.python.org/)
@@ -20,17 +20,25 @@ Line Echo Bot 的實作紀錄
 - [Virtualenv](https://virtualenv.pypa.io/en/stable/)
 - [Pipenv](https://pipenv.readthedocs.io/en/latest/)
 
+基本上需要安裝 `Django` 和 `line-bot-sdk`
+
+```console
+pip install Django line-bot-sdk
 ```
-$ pip install Django
-$ pip install line-bot-sdk
+
+
+或是直接使用
+
+```shell
+pip install -r requirements.txt 
 ```
 
 ### 建立 Django 專案
 
-```
-$ django-admin startproject django_line_bot
-$ cd django_line_bot
-$ python manage.py startapp echobot
+```shell
+django-admin startproject django_line_bot
+cd django_line_bot
+python manage.py startapp line
 ```
 
 ### 設定 Webhook URL
@@ -38,80 +46,85 @@ $ python manage.py startapp echobot
 
 為了讓 Line 可以把收到的訊息傳給程式
 
-我們將接收的 Webhook URL 設計成 ```https://{domain name}/echobot/callback/```
+我們將接收的 Webhook URL 設計成
+```
+https://{domain name}/line/webhook/
+```
 
-#### django_line_bot/urls.py
+#### config/urls.py
 
 ```python
 from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('echobot/', include('echobot.urls')),
+    path("admin/", admin.site.urls),
+    path("line/", include("line.urls"))
 ]
 ```
 
-#### echobot/urls.py
+#### line/urls.py
 
 ```python
 from django.urls import path
 
-from . import views
+from .views import webhook
 
-urlpatterns = [
-    path('callback/', views.callback, name='callback'),
-]
+urlpatterns = [path("webhook/", webhook, name="webhook")]
 ```
 
 ### 實作 Echo Function
 
-再來就是要在 ```echobot/views.py``` 裡實作 ```callback```
+再來就是要在 ```line/views.py``` 裡實作接收 LINE Webhook 的 Endpoint
 
-官方已經有提供 Flask 的 Echo-bot 範例
+可以參考官方提供的 Flask Echo-bot 範例
 [flask-echo](https://github.com/line/line-bot-sdk-python/tree/master/examples/flask-echo)
 
 ```python
-from django.conf import settings
-from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
+import logging
 
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse, HttpResponseBadRequest
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
-line_bot_api = LineBotApi('CHANNEL_ACCESS_TOKEN')
-handler = WebhookHandler('CHANNEL_SECRET')
+logger = logging.getLogger("django")
+
+line_bot_api = LineBotApi(settings.CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(settings.CHANNEL_SECRET)
 
 
 @csrf_exempt
-def callback(request: HttpRequest) -> HttpResponse:
-    
-    if request.method == "POST":
-        # get X-Line-Signature header value
-        signature = request.META['HTTP_X_LINE_SIGNATURE']
+@require_POST
+def webhook(request: HttpRequest):
+    signature = request.headers["X-Line-Signature"]
+    body = request.body.decode()
 
-        # get request body as text
-        body = request.body.decode('utf-8')
-
-        # handle webhook body
-        try:
-            handler.handle(body, signature)
-        except InvalidSignatureError:
-            return HttpResponseBadRequest()
-
-        return HttpResponse()
-    else:
-        return HttpResponseBadRequest()
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        messages = (
+            "Invalid signature. Please check your channel access token/channel secret."
+        )
+        logger.error(messages)
+        return HttpResponseBadRequest(messages)
+    return HttpResponse("OK")
 
 
-@handler.add(MessageEvent, message=TextMessage)
-def message_text(event: MessageEvent):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text)
-    )
+@handler.add(event=MessageEvent, message=TextMessage)
+def handl_message(event: MessageEvent):
+    if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
+        line_bot_api.reply_message(
+            reply_token=event.reply_token,
+            messages=TextSendMessage(text=event.message.text),
+        )
 ```
+
+> 補充：`Udeadbeefdeadbeefdeadbeefdeadbeef` 這組用戶 ID 是在 LINE Developers 裡填入 Webhook URL 時的 `Verify` 按鈕按下時，LINE 送至 Webhook 的用戶 ID
 
 到這裡，實作的部分就差不多了
 
@@ -123,9 +136,11 @@ def message_text(event: MessageEvent):
 
 ![](images/bot_card.png)
 
-點進去之後在 **Channel settings** 的頁面中會有一些資訊需要記下來給程式使用，如果沒有的話可以按 Issue 按紐來產生
-- Channel secret
-- Channel access token
+點進去之後在頁面中會有一些資訊需要記下來給程式使用
+
+**Basic settings** 裡的 `Channel secret`
+
+**Messaging API** 裡的 `Channel access token`，如果沒有的話可以按 Issue 按紐來產生
 
 再來有兩個地方需要設定，由於我們需要將讓 Line 知道要把訊息轉給誰，因此要把 ```Use webhooks``` 設定成 ```Enabled```，```Webhook URL``` 則是設定成前面設計的 Webhook URL，不過目前尚未將程式部署到網路上所以稍後再設定
 - Use webhooks
@@ -220,6 +235,5 @@ web: gunicorn --pythonpath django_line_bot django_line_bot.wsgi
 gunicorn 的部分可以參考官網 [gunicorn](https://gunicorn.org/)
 
 ## 參考資料
-- [Line Echo Bot on Django](http://lee-w.github.io/posts/bot/2016/11/line-echo-bot-on-django/)
 - [手把手教你搭建聊天機器人(LineBot+Python+QnAMaker+Heroku)-02建造LineBot Backend Server 並部署至Heroku](https://medium.com/@hatsukiotowa/%E6%89%8B%E6%8A%8A%E6%89%8B%E6%95%99%E4%BD%A0%E6%90%AD%E5%BB%BA%E8%81%8A%E5%A4%A9%E6%A9%9F%E5%99%A8%E4%BA%BA-linebot-python-qnamaker-heroku-02%E5%BB%BA%E9%80%A0linebot-backend-server-%E4%B8%A6%E9%83%A8%E7%BD%B2%E8%87%B3heroku-59b36357cd9d)
 - [Working with Django](https://devcenter.heroku.com/categories/working-with-django)
