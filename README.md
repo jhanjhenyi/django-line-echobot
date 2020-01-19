@@ -130,6 +130,21 @@ def handl_message(event: MessageEvent):
 
 到這裡，實作的部分就差不多了
 
+## 本機測試
+
+### Docker
+
+docker 是個方便的工具，這裡可以直接使用我寫好的 docker-compose.yml 進行測試
+裡面已包含一般服務都會有的 web 與 db，使用前僅需要替換 web 服務裡的環境變數 `CHANNEL_ACCESS_TOKEN` 與 `CHANNEL_SECRET`
+
+然後啟動服務
+
+```shell
+docker-compose up -d
+```
+
+`127.0.0.1` 應該就有東西了
+
 ## LINE Developers
 
 再來就要到 [Line Developers](https://developers.line.me/en/) 的頁面去申請 Bot
