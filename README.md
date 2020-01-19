@@ -134,7 +134,7 @@ def handl_message(event: MessageEvent):
 
 ### Docker
 
-docker 是個方便的工具，這裡可以直接使用我寫好的 docker-compose.yml 進行測試
+docker 是個方便的工具，這裡可以直接使用我寫好的 `docker-compose.yml` 進行測試
 
 裡面已包含一般服務都會有的 web 與 db，使用前僅需要替換 web 服務裡的環境變數 `CHANNEL_ACCESS_TOKEN` 與 `CHANNEL_SECRET`
 
@@ -245,7 +245,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 還有 ```Procfile``` 檔案
 
 ```
-web: gunicorn --pythonpath django_line_bot django_line_bot.wsgi
+web: gunicorn --pythonpath django_line_bot config.wsgi
 ```
 
 gunicorn 的部分可以參考官網 [gunicorn](https://gunicorn.org/)
