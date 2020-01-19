@@ -1,6 +1,6 @@
-# Django Line Echo Bot
+# Django LINE Echo Bot
 
-Line Echo Bot 的實作紀錄
+LINE Echo Bot 的實作紀錄
 
 ![](images/line_echo_bot.jpg)
 
@@ -135,15 +135,14 @@ def handl_message(event: MessageEvent):
 ### Docker
 
 docker 是個方便的工具，這裡可以直接使用我寫好的 docker-compose.yml 進行測試
+
 裡面已包含一般服務都會有的 web 與 db，使用前僅需要替換 web 服務裡的環境變數 `CHANNEL_ACCESS_TOKEN` 與 `CHANNEL_SECRET`
 
-然後啟動服務
+然後啟動服務後，`127.0.0.1` 應該就有東西了
 
 ```shell
 docker-compose up -d
 ```
-
-`127.0.0.1` 應該就有東西了
 
 ## LINE Developers
 
