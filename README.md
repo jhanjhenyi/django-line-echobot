@@ -22,7 +22,7 @@ Line Echo Bot 的實作紀錄
 
 基本上需要安裝 `Django` 和 `line-bot-sdk`
 
-```console
+```shell
 pip install Django line-bot-sdk
 ```
 
@@ -70,7 +70,9 @@ from django.urls import path
 
 from .views import webhook
 
-urlpatterns = [path("webhook/", webhook, name="webhook")]
+urlpatterns = [
+    path("webhook/", webhook, name="webhook")
+]
 ```
 
 ### 實作 Echo Function
@@ -134,7 +136,7 @@ def handl_message(event: MessageEvent):
 
 申請流程就不記錄了，總之這是我申請的 Bot
 
-![](images/bot_card.png)
+![](images/line_bot_card.png)
 
 點進去之後在頁面中會有一些資訊需要記下來給程式使用
 
